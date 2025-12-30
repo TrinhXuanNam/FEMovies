@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import DropdownArrow from './DropdownArrow';
 import LoginModal from './LoginModal';
+import SearchSuggestions from './SearchSuggestions';
 
 interface NavLink {
   href: string;
@@ -13,9 +15,14 @@ interface NavLink {
 }
 
 export default function Header() {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isGenreDropdownOpen, setIsGenreDropdownOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const genreDropdownRef = useRef<HTMLDivElement>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -224,6 +231,7 @@ export default function Header() {
           <div className="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
             {/* Search Button - Mobile */}
             <button
+              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
               className="md:hidden p-2 text-neutral-300 hover:text-white hover:bg-primary-600/20 rounded-lg transition-colors"
               aria-label="Search"
             >
@@ -242,16 +250,72 @@ export default function Header() {
               </svg>
             </button>
 
+            {/* Mobile Search Input */}
+            {isMobileSearchOpen && (
+              <div className="md:hidden absolute top-full left-0 right-0 p-4 bg-slate-900 border-b border-slate-700 z-50">
+                <div className="relative">
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setShowSearchSuggestions(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && searchQuery.trim()) {
+                        router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+                        setShowSearchSuggestions(false);
+                        setIsMobileSearchOpen(false);
+                      }
+                    }}
+                  placeholder="Tìm kiếm phim..."
+                  className="w-full px-3 py-2 pl-9 bg-movie-card border border-movie-border rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm"
+                    autoFocus
+                  />
+                  <svg
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-neutral-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                  <SearchSuggestions
+                    query={searchQuery}
+                    isOpen={showSearchSuggestions}
+                    onClose={() => setShowSearchSuggestions(false)}
+                    onSelect={() => {
+                      setShowSearchSuggestions(false);
+                      setIsMobileSearchOpen(false);
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Search Input - Desktop */}
             <div className="hidden lg:flex items-center">
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search movies..."
-                  className="w-40 xl:w-52 px-3 py-1.5 pl-9 bg-movie-card border border-movie-border rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setShowSearchSuggestions(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchQuery.trim()) {
+                      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+                      setShowSearchSuggestions(false);
+                    }
+                  }}
+                  placeholder="Tìm kiếm phim..."
+                  className="w-40 xl:w-52 px-3 py-1.5 pl-9 bg-movie-card border border-movie-border rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm hover:border-slate-500"
                 />
                 <svg
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-neutral-400"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -263,6 +327,14 @@ export default function Header() {
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
                 </svg>
+                <SearchSuggestions
+                  query={searchQuery}
+                  isOpen={showSearchSuggestions}
+                  onClose={() => setShowSearchSuggestions(false)}
+                  onSelect={() => {
+                    setShowSearchSuggestions(false);
+                  }}
+                />
               </div>
             </div>
 

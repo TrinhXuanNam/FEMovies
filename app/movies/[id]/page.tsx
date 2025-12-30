@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DropdownArrow from '@/components/DropdownArrow';
 import LoginModal from '@/components/LoginModal';
@@ -42,6 +43,7 @@ export default function MovieDetailPage({
 }: {
   params: { id: string };
 }) {
+  const router = useRouter();
   const [selectedEpisode, setSelectedEpisode] = useState<number | null>(null);
   const [episodeSearch, setEpisodeSearch] = useState('');
   const [showFullDescription, setShowFullDescription] = useState(false);
@@ -60,7 +62,8 @@ export default function MovieDetailPage({
     const episodeNum = parseInt(episodeSearch);
     if (episodeNum >= 1 && episodeNum <= totalEpisodes) {
       setSelectedEpisode(episodeNum);
-      // Scroll to episode or navigate
+      // Navigate to watch page
+      router.push(`/watch/${movieData.id}/${episodeNum}`);
     }
   };
 
@@ -222,9 +225,12 @@ export default function MovieDetailPage({
 
           {/* Primary Action Buttons */}
           <div className="flex flex-wrap gap-3">
-            <button className="px-6 py-3 bg-accent-500 hover:bg-accent-600 text-white rounded-lg font-medium transition-colors w-[350px]">
+            <Link
+              href={`/watch/${movieData.id}/${selectedEpisode || movieData.latestEpisode}`}
+              className="px-6 py-3 bg-accent-500 hover:bg-accent-600 text-white rounded-lg font-medium transition-colors w-[350px] text-center"
+            >
               Xem Phim
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -288,13 +294,14 @@ export default function MovieDetailPage({
       {/* Episode Grid - Scrollable */}
       <div className="mb-8">
         <div className="max-h-96 overflow-y-auto custom-scrollbar pr-2">
-          <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
+          <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-12 gap-2">
             {episodes.map((episode) => (
-              <button
+              <Link
                 key={episode}
+                href={`/watch/${movieData.id}/${episode}`}
                 onClick={() => setSelectedEpisode(episode)}
                 className={`
-                  px-3 py-2 rounded-md font-medium transition-colors text-sm
+                  px-3 py-2 rounded-md font-medium transition-colors text-sm text-center
                   ${
                     selectedEpisode === episode
                       ? 'bg-primary-600 text-white'
@@ -303,7 +310,7 @@ export default function MovieDetailPage({
                 `}
               >
                 {episode}
-              </button>
+              </Link>
             ))}
           </div>
         </div>

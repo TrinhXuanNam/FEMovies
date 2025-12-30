@@ -12,7 +12,8 @@
   "dependencies": {
     "next": "^16.0.7",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-player": "^3.4.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.5",

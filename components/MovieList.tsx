@@ -18,7 +18,7 @@ interface MovieListProps {
 
 export default function MovieList({ movies }: MovieListProps) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-5">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
       {movies.map((movie) => (
         <Link
           key={movie.id}
@@ -44,7 +44,7 @@ export default function MovieList({ movies }: MovieListProps) {
               {movie.rating && (
                 <div className="absolute top-2 right-2 z-20 bg-yellow-500/90 backdrop-blur-sm px-2 py-1 rounded-md">
                   <span className="text-white text-xs font-medium">
-                    ★ {movie.rating}
+                    ★ {movie.rating.toFixed(1)}
                   </span>
                 </div>
               )}
